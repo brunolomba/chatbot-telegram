@@ -11,15 +11,15 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.3,
       "position": [
-        -432,
-        544
+        -1184,
+        288
       ],
-      "id": "71cf0027-528d-4cee-9b46-789b406eeef1",
+      "id": "1cf94b5a-8cea-43b6-8e79-8335a12bc361",
       "name": "Telegram Trigger",
       "webhookId": "6fa5059d-9d7a-4083-add9-5217db5bda98",
       "credentials": {
         "telegramApi": {
-          "id": "EJVboceU7Ce0ofBv",
+          "id": "FnJyztepEiifDPOb",
           "name": "Telegram account"
         }
       }
@@ -33,15 +33,15 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        464,
-        576
+        -288,
+        320
       ],
-      "id": "711c6d06-2dc8-4117-afd5-f633141cebcb",
+      "id": "6d47617f-7996-4dea-b6ec-24091da4ef23",
       "name": "Send a text Error API",
       "webhookId": "e13f89b0-a10d-41b1-bcce-4ed37a46f6fb",
       "credentials": {
         "telegramApi": {
-          "id": "EJVboceU7Ce0ofBv",
+          "id": "8vFuve4VD4LIbIHD",
           "name": "Telegram account"
         }
       }
@@ -61,6 +61,10 @@
             {
               "name": "limit",
               "value": "1"
+            },
+            {
+              "name": "appid",
+              "value": "={{ $env.OPENWEATHER_API_KEY }}"
             }
           ]
         },
@@ -69,16 +73,17 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        176,
-        448
+        -576,
+        192
       ],
-      "id": "363aef37-7238-47cd-b669-ecfcf92c59c6",
+      "id": "899e77c9-be5f-4474-95c1-6809cb2526c7",
       "name": "HTTP - GET LAT/LON with Geocoding in  in API OpenWeather",
       "alwaysOutputData": true,
+      "executeOnce": true,
       "credentials": {
         "httpQueryAuth": {
-          "id": "VGlCaUiY86EGC36G",
-          "name": "OpenWeather API"
+          "id": "Q6Y0wsNuFMM6cYq0",
+          "name": "Query Auth account"
         }
       },
       "onError": "continueErrorOutput"
@@ -110,15 +115,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        464,
-        352
+        -288,
+        96
       ],
-      "id": "034ec351-3983-4f5c-af16-68c3a5f38626",
+      "id": "d00b453e-0d10-478a-8009-a2a2b711dd6a",
       "name": "HTTP - GET Temperature in API OpenWeather",
       "credentials": {
         "httpQueryAuth": {
-          "id": "VGlCaUiY86EGC36G",
-          "name": "OpenWeather API"
+          "id": "Q6Y0wsNuFMM6cYq0",
+          "name": "Query Auth account"
         }
       },
       "onError": "continueErrorOutput"
@@ -158,10 +163,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -256,
-        544
+        -1008,
+        288
       ],
-      "id": "c6d4e95a-feeb-452e-b61c-321271bd61d8",
+      "id": "17604c35-1f87-44bc-b228-dc25fb9c2d40",
       "name": "Create Object Data"
     },
     {
@@ -192,10 +197,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -80,
-        544
+        -832,
+        288
       ],
-      "id": "70d2dd4b-8fde-45e9-b773-7776dea16c18",
+      "id": "03ff245d-325c-4bf4-83d1-8cfa153c0f5a",
       "name": "If Correct Data?"
     },
     {
@@ -207,15 +212,15 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        752,
-        256
+        0,
+        0
       ],
-      "id": "c5f684f4-93ba-466e-8805-9e064eaea05a",
+      "id": "7e939b77-4be9-4794-83b3-7ad23cfe728d",
       "name": "Send a text with Temperature",
       "webhookId": "24263eeb-20de-4dcc-9830-063d7107c373",
       "credentials": {
         "telegramApi": {
-          "id": "EJVboceU7Ce0ofBv",
+          "id": "8vFuve4VD4LIbIHD",
           "name": "Telegram account"
         }
       }
@@ -229,15 +234,15 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        752,
-        480
+        0,
+        224
       ],
-      "id": "2f11a129-dc8e-4590-bb60-7500dcce008f",
+      "id": "dff2b5e4-bcfc-430f-ba72-34090400308d",
       "name": "Send a text Wrong State",
       "webhookId": "24263eeb-20de-4dcc-9830-063d7107c373",
       "credentials": {
         "telegramApi": {
-          "id": "EJVboceU7Ce0ofBv",
+          "id": "8vFuve4VD4LIbIHD",
           "name": "Telegram account"
         }
       }
@@ -251,15 +256,15 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        176,
-        656
+        -576,
+        400
       ],
-      "id": "00ad7d8c-cfb6-4dd2-b115-24e2a04917f7",
+      "id": "469f3e2d-f2f4-43e4-894e-1b9a924731c8",
       "name": "Send a text City and State Not Found",
       "webhookId": "e13f89b0-a10d-41b1-bcce-4ed37a46f6fb",
       "credentials": {
         "telegramApi": {
-          "id": "EJVboceU7Ce0ofBv",
+          "id": "8vFuve4VD4LIbIHD",
           "name": "Telegram account"
         }
       }
@@ -350,12 +355,12 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "c9089820-0c8a-4134-b9e1-8066e263f568",
+  "versionId": "417fdf73-0d19-4ef2-ada3-382c2f297bf4",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "2468c3d7b8ff27e9b028482228212d604e10009a980272e8440be0f34027cac7"
+    "instanceId": "c87df4463834a84275a5f46f765b499d559bf8e969702d0948b7d7bbc39e7dd1"
   },
   "nodeGroups": [],
-  "id": "3itoXBFwtRdRLO6q",
+  "id": "fGYae0f47BdDddrF",
   "tags": []
 }
