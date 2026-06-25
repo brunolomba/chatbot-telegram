@@ -1,0 +1,361 @@
+{
+  "name": "workflow-chatbot-telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -432,
+        544
+      ],
+      "id": "71cf0027-528d-4cee-9b46-789b406eeef1",
+      "name": "Telegram Trigger",
+      "webhookId": "6fa5059d-9d7a-4083-add9-5217db5bda98",
+      "credentials": {
+        "telegramApi": {
+          "id": "EJVboceU7Ce0ofBv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Create Object Data').item.json.chat_id }}",
+        "text": "=❌ A consulta ao serviço apresentou um erro inesperado, por favor, tente novamente mais tarde.\n\n*Ex. São Paulo,SP,BR*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        576
+      ],
+      "id": "711c6d06-2dc8-4117-afd5-f633141cebcb",
+      "name": "Send a text Error API",
+      "webhookId": "e13f89b0-a10d-41b1-bcce-4ed37a46f6fb",
+      "credentials": {
+        "telegramApi": {
+          "id": "EJVboceU7Ce0ofBv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://api.openweathermap.org/geo/1.0/direct",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.city }},{{ $json.state }},br"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        176,
+        448
+      ],
+      "id": "363aef37-7238-47cd-b669-ecfcf92c59c6",
+      "name": "HTTP - GET LAT/LON with Geocoding in  in API OpenWeather",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "VGlCaUiY86EGC36G",
+          "name": "OpenWeather API"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lat",
+              "value": "={{ $json.lat }}"
+            },
+            {
+              "name": "lon",
+              "value": "={{ $json.lon }}"
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        464,
+        352
+      ],
+      "id": "034ec351-3983-4f5c-af16-68c3a5f38626",
+      "name": "HTTP - GET Temperature in API OpenWeather",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "VGlCaUiY86EGC36G",
+          "name": "OpenWeather API"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a7e0d4d1-8ceb-4ac6-95ec-14448ffc65bd",
+              "name": "city",
+              "value": "={{ $json.message.text.includes(',') ? $json.message.text.trim().toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").split(\",\")[0].trim() : \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "1a0867a7-1063-4854-bb9d-44eb79b29002",
+              "name": "state",
+              "value": "={{ $json.message.text.trim().toLowerCase().normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").split(\",\")[1].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "c925d9e3-6a96-46ff-aa3d-eebda2ea9ca2",
+              "name": "chat_id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "57fd7b27-9006-40d3-8643-8638ba943bf0",
+              "name": "city_chat_message",
+              "value": "={{ $json.message.text.split(',')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        544
+      ],
+      "id": "c6d4e95a-feeb-452e-b61c-321271bd61d8",
+      "name": "Create Object Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "353c6408-d9c5-4ef7-8817-fb7c327d5185",
+              "leftValue": "={{ $json.state && $json.city }}",
+              "rightValue": "[null]",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        544
+      ],
+      "id": "70d2dd4b-8fde-45e9-b773-7776dea16c18",
+      "name": "If Correct Data?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.name.normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").toLowerCase().trim() === $('Create Object Data').item.json.city\n  ? `🌤️ A temperatura em ${$('Create Object Data').item.json.city_chat_message} / ${$('Create Object Data').item.json.state.toUpperCase()} é de ${ Math.round($json.main.temp)}°C.`\n  : `🌤️ A temperatura em ${$('Create Object Data').item.json.city_chat_message} na cidade de ${$json.name} / ${$('Create Object Data').item.json.state.toUpperCase()} é de ${ Math.round($json.main.temp)}°C.`\n}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        256
+      ],
+      "id": "c5f684f4-93ba-466e-8805-9e064eaea05a",
+      "name": "Send a text with Temperature",
+      "webhookId": "24263eeb-20de-4dcc-9830-063d7107c373",
+      "credentials": {
+        "telegramApi": {
+          "id": "EJVboceU7Ce0ofBv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=❌ A cidade *{{ $('Create Object Data').item.json.city_chat_message }}* não existe no estado de *{{ $('Create Object Data').item.json.state.toUpperCase() }}*.\n\nVerifique se você digitou corretamente.\n*Ex. São Paulo, SP*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        480
+      ],
+      "id": "2f11a129-dc8e-4590-bb60-7500dcce008f",
+      "name": "Send a text Wrong State",
+      "webhookId": "24263eeb-20de-4dcc-9830-063d7107c373",
+      "credentials": {
+        "telegramApi": {
+          "id": "EJVboceU7Ce0ofBv",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Create Object Data').item.json.chat_id }}",
+        "text": "=❌ Encontramos um erro na sua busca.\n\nDigite novamente, seguindo o modelo Abaixo.\n*São Paulo, SP*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        656
+      ],
+      "id": "00ad7d8c-cfb6-4dd2-b115-24e2a04917f7",
+      "name": "Send a text City and State Not Found",
+      "webhookId": "e13f89b0-a10d-41b1-bcce-4ed37a46f6fb",
+      "credentials": {
+        "telegramApi": {
+          "id": "EJVboceU7Ce0ofBv",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Object Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - GET LAT/LON with Geocoding in  in API OpenWeather": {
+      "main": [
+        [
+          {
+            "node": "HTTP - GET Temperature in API OpenWeather",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text Error API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - GET Temperature in API OpenWeather": {
+      "main": [
+        [
+          {
+            "node": "Send a text with Temperature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text Wrong State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Object Data": {
+      "main": [
+        [
+          {
+            "node": "If Correct Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Correct Data?": {
+      "main": [
+        [
+          {
+            "node": "HTTP - GET LAT/LON with Geocoding in  in API OpenWeather",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text City and State Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c9089820-0c8a-4134-b9e1-8066e263f568",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2468c3d7b8ff27e9b028482228212d604e10009a980272e8440be0f34027cac7"
+  },
+  "nodeGroups": [],
+  "id": "3itoXBFwtRdRLO6q",
+  "tags": []
+}

@@ -1,0 +1,116 @@
+services:
+  n8n_editor:
+    image: n8nio/n8n:2.26.6
+    container_name: n8n_editor_ftr
+    ports:
+      - 5678:5678
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+      ## Postgres
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=postgres
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      ## Queue Mode
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+      ## Webhook
+      - WEBHOOK_URL=https://roundness-racoon-almighty.ngrok-free.dev
+    networks:
+      - m2_n8n
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+
+  n8n_worker:
+    image: n8nio/n8n:2.26.6
+    command: worker
+    ports:
+      - 5679:5678
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+      ## Postgres
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_DATABASE=postgres
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      ## Queue Mode
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+      ## Webhook
+      - WEBHOOK_URL=https://roundness-racoon-almighty.ngrok-free.dev
+    restart: always
+    networks:
+      - m2_n8n
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: ankane/pgvector
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+    restart: always
+    networks:
+      - m2_n8n
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    restart: always
+    networks:
+      - m2_n8n
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    ports:
+      - 4040:4040
+    volumes:
+      - ngrok_data:/etc
+    command: http --domain=roundness-racoon-almighty.ngrok-free.dev n8n_editor_ftr:5678
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_TOKEN}
+    restart: always
+    networks:
+      - m2_n8n
+    depends_on:
+      - n8n_editor
+
+networks:
+  m2_n8n:
+    driver: bridge
+volumes:
+  n8n_data:
+  postgres_data:
+  redis_data:
+  ngrok_data:
